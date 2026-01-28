@@ -1,0 +1,33 @@
+
+import { queryDatabase } from "@/lib/db";
+import { NextRequest, NextResponse } from "next/server";
+
+export async function GET(req: NextRequest) {
+  const { searchParams } = new URL(req.url || "");
+  const date = searchParams.get("date");
+
+  // Validate the date format
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(date as string)) {
+    return NextResponse.json({ error: "Invalid date format" }, { status: 400 });
+  }
+
+  console.log(date as string);
+
+  try {
+    const query = `
+      SELECT * 
+      FROM [Marketplace].[APILog] 
+      WHERE CONVERT(date, Entrydate) = '${date}' 
+      AND sources <> 'Searches'
+    `;
+
+    const logs = await queryDatabase(query);
+    return NextResponse.json(logs);
+  } catch (error) {
+    console.error("Error fetching logs:", error);
+    return NextResponse.json(
+      { error: "Failed to fetch logs" },
+      { status: 500 }
+    );
+  }
+}
