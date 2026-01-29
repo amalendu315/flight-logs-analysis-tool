@@ -142,13 +142,48 @@ export function LogDataTable({
     },
     {
       accessorKey: "Entrydate",
-      header: "Timestamp",
-      cell: ({ row }) => (
-        <div className="flex items-center gap-2 text-xs text-slate-600">
-          <Clock className="w-3 h-3 text-slate-400" />
-          {formatTime(row.getValue("Entrydate"))}
-        </div>
+      header: ({ column }) => (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          className="pl-0 hover:bg-transparent"
+        >
+          Timestamp
+          <ArrowUpDown className="ml-2 h-3 w-3" />
+        </Button>
       ),
+      cell: ({ row }) => {
+        const dateString = row.getValue("Entrydate");
+
+        // Convert the ISO string into a JavaScript Date object
+        const date = new Date(dateString as string);
+
+        const formattedDate = date; // Replace with your actual API date string
+
+        // Convert the formattedDate string into a Date object
+        const _date = new Date(formattedDate);
+
+        // Subtract 5 hours and 30 minutes (in milliseconds)
+        const offsetMilliseconds = (5 * 60 + 30) * 60 * 1000;
+        _date.setTime(date.getTime() - offsetMilliseconds);
+
+        // Convert the updated date back to a string if needed
+        const updatedFormattedDate = _date.toLocaleString("en-IN", {
+          timeZone: "Asia/Kolkata",
+          year: "numeric",
+          month: "2-digit",
+          day: "2-digit",
+          hour: "2-digit",
+          minute: "2-digit",
+          second: "2-digit",
+        });
+        return (
+          <div className="flex items-center gap-2 text-xs text-slate-600">
+            <Clock className="w-3 h-3 text-slate-400" />
+            {updatedFormattedDate}
+          </div>
+        );
+      },
     },
     {
       accessorKey: "statcode",
@@ -196,6 +231,62 @@ export function LogDataTable({
         row.getValue("AccountID") ? (
           <Badge variant="secondary" className="text-[10px]">
             {row.getValue("AccountID")}
+          </Badge>
+        ) : (
+          <span className="text-slate-300">-</span>
+        ),
+    },
+    {
+      accessorKey: "sources",
+      header: ({ column }) => (
+        <Button variant="ghost" className="pl-0 hover:bg-transparent">
+          Sources
+        </Button>
+      ),
+      cell: ({ row }) => {
+        const stat = row.getValue("sources");
+        return (
+          <div className="text-center">
+            <div className="max-w-50 lg:max-w-75 truncate font-medium text-slate-700 text-xs">
+              {JSON.stringify(stat)}
+            </div>
+          </div>
+        );
+      },
+    },
+    {
+      accessorKey: "PnrNumber",
+      header: ({ column }) => (
+        <Button variant="ghost" className="pl-0 hover:bg-transparent">
+          PNR
+        </Button>
+      ),
+      cell: ({ row }) => {
+        const stat = row.getValue("PnrNumber");
+        return (
+          <div className="text-center">
+            <div className="max-w-50 lg:max-w-75 truncate font-medium text-slate-700 text-xs">
+              {JSON.stringify(stat)}
+            </div>
+          </div>
+        );
+      },
+    },
+    {
+      accessorKey: "BookingRequestID",
+      header: ({ column }) => (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          className="pl-0 hover:bg-transparent"
+        >
+          Booking ID
+        </Button>
+      ),
+      cell: ({ row }) =>
+        row.getValue("BookingRequestID") ? (
+          <Badge variant="secondary" className="text-[10px] text-center">
+            {row.getValue("BookingRequestID")}
           </Badge>
         ) : (
           <span className="text-slate-300">-</span>
